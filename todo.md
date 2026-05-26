@@ -36,14 +36,14 @@
 - [x] Indicadores de medidas ativas
 
 ### Relatórios
-- [ ] Geração de relatórios por escola
-- [ ] Geração de relatórios por turma
-- [ ] Geração de relatórios por tipo de medida
-- [ ] Filtros por período letivo
-- [ ] Exportação em PDF
-- [ ] Integração com IA para síntese de medidas
-- [ ] Formatação adequada para reuniões de EMAEI
-- [ ] Conformidade com requisitos legais DL 54/2018
+- [x] Geração de relatórios por escola (interface)
+- [x] Geração de relatórios por turma (interface)
+- [x] Geração de relatórios por tipo de medida (interface)
+- [x] Filtros por período letivo (interface)
+- [ ] Exportação em PDF (em progresso)
+- [ ] Integração com IA para síntese de medidas (em progresso)
+- [ ] Formatação adequada para reuniões de EMAEI (em progresso)
+- [ ] Conformidade com requisitos legais DL 54/2018 (em progresso)
 
 ### Auditoria
 - [x] Registo de todas as alterações (audit log)
@@ -78,7 +78,7 @@
 
 ## Progresso
 
-Total de tarefas: 25/60 (42% concluído)
+Total de tarefas: 30/60 (50% concluído)
 
 ### Concluído
 - [x] Esquema de base de dados com todas as tabelas (users, schools, students, measures, student_measures, audit_log, reports)

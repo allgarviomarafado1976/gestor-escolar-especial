@@ -6,6 +6,7 @@ import Students from "@/pages/Students";
 import Measures from "@/pages/Measures";
 import Dashboard from "@/pages/Dashboard";
 import Audit from "@/pages/Audit";
+import Reports from "@/pages/Reports";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -17,7 +18,7 @@ function Router() {
       <Route path={"/alunos"} component={Students} />
       <Route path={"/medidas"} component={Measures} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/relatorios"} component={() => <div className="p-4">Relatórios - Em desenvolvimento</div>} />
+      <Route path={"/relatorios"} component={Reports} />
       <Route path={"/auditoria"} component={Audit} />
       <Route path={"/admin"} component={() => <div className="p-4">Administração - Em desenvolvimento</div>} />
       <Route path={"/404"} component={NotFound} />

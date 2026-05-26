@@ -21,7 +21,7 @@
 - [x] Associação de medidas a alunos (backend)
 - [x] Datas de início e fim de medidas (backend)
 - [x] Notas e observações sobre medidas (backend)
-- [ ] Visualização de histórico de medidas por aluno (interface)
+- [x] Visualização de histórico de medidas por aluno (interface)
 
 ### Gestão de Escolas
 - [x] Configuração das 6 escolas do agrupamento (backend)
@@ -29,11 +29,11 @@
 - [ ] Visualização de estatísticas por escola (interface)
 
 ### Dashboard e Estatísticas
-- [ ] Dashboard com indicadores principais
-- [ ] Filtros por escola, nível de ensino e tipo de medida
-- [ ] Gráficos de distribuição de medidas
-- [ ] Contadores de alunos por escola e nível
-- [ ] Indicadores de medidas ativas
+- [x] Dashboard com indicadores principais
+- [x] Filtros por escola, nível de ensino e tipo de medida
+- [x] Gráficos de distribuição de medidas
+- [x] Contadores de alunos por escola e nível
+- [x] Indicadores de medidas ativas
 
 ### Relatórios
 - [ ] Geração de relatórios por escola
@@ -48,7 +48,7 @@
 ### Auditoria
 - [x] Registo de todas as alterações (audit log)
 - [x] Rastreabilidade completa de ações
-- [ ] Visualização do histórico de alterações (interface)
+- [x] Visualização do histórico de alterações (interface)
 - [x] Identificação do utilizador que realizou cada ação
 
 ### Interface e Design
@@ -78,7 +78,7 @@
 
 ## Progresso
 
-Total de tarefas: 15/60 (25% concluído)
+Total de tarefas: 25/60 (42% concluído)
 
 ### Concluído
 - [x] Esquema de base de dados com todas as tabelas (users, schools, students, measures, student_measures, audit_log, reports)

@@ -161,23 +161,25 @@ export default function Home() {
             </Button>
           </div>
 
-          {/* Auditoria Card */}
-          <div
-            onClick={() => setLocation("/auditoria")}
-            className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 cursor-pointer hover:bg-opacity-60 transition-all backdrop-blur-sm"
-          >
-            <div className="flex items-start justify-between mb-4">
-              <Settings className="w-8 h-8 text-white" />
-              <div className="w-12 h-12 border-2 border-white border-opacity-30 rounded-lg"></div>
+          {/* Auditoria Card - Only for admins */}
+          {user?.role === "admin" && (
+            <div
+              onClick={() => setLocation("/auditoria")}
+              className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 cursor-pointer hover:bg-opacity-60 transition-all backdrop-blur-sm"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <Settings className="w-8 h-8 text-white" />
+                <div className="w-12 h-12 border-2 border-white border-opacity-30 rounded-lg"></div>
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">Auditoria</h2>
+              <p className="text-blue-200 text-sm mb-4">
+                Consulte o registo de todas as alterações para rastreabilidade completa.
+              </p>
+              <Button variant="ghost" className="text-white hover:bg-blue-700 w-full justify-start">
+                Aceder →
+              </Button>
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">Auditoria</h2>
-            <p className="text-blue-200 text-sm mb-4">
-              Consulte o registo de todas as alterações para rastreabilidade completa.
-            </p>
-            <Button variant="ghost" className="text-white hover:bg-blue-700 w-full justify-start">
-              Aceder →
-            </Button>
-          </div>
+          )}
 
           {/* Administração Card - Only for admins */}
           {user?.role === "admin" && (

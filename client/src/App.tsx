@@ -3,6 +3,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import Home from "@/pages/Home";
 import Students from "@/pages/Students";
+import Measures from "@/pages/Measures";
+import Dashboard from "@/pages/Dashboard";
+import Audit from "@/pages/Audit";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -12,10 +15,10 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/alunos"} component={Students} />
-      <Route path={"/medidas"} component={() => <div className="p-4">Medidas - Em desenvolvimento</div>} />
-      <Route path={"/dashboard"} component={() => <div className="p-4">Dashboard - Em desenvolvimento</div>} />
+      <Route path={"/medidas"} component={Measures} />
+      <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/relatorios"} component={() => <div className="p-4">Relatórios - Em desenvolvimento</div>} />
-      <Route path={"/auditoria"} component={() => <div className="p-4">Auditoria - Em desenvolvimento</div>} />
+      <Route path={"/auditoria"} component={Audit} />
       <Route path={"/admin"} component={() => <div className="p-4">Administração - Em desenvolvimento</div>} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

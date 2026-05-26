@@ -234,11 +234,40 @@ export const appRouter = router({
       return db.getUserById(input.id);
     }),
 
+    create: adminProcedure
+      .input(
+        z.object({
+          name: z.string(),
+          email: z.string(),
+          role: z.enum(["user", "admin", "professor", "tecnico"]),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const openId = `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const result = await db.createUser({
+          openId,
+          name: input.name,
+          email: input.email,
+          role: input.role,
+          active: true,
+        });
+
+        await db.createAuditLog({
+          userId: ctx.user.id,
+          action: "CREATE",
+          entity: "user",
+          details: input,
+        });
+
+        return result;
+      }),
+
     update: adminProcedure
       .input(
         z.object({
           id: z.number(),
           name: z.string().optional(),
+          email: z.string().optional(),
           role: z.enum(["user", "admin", "professor", "tecnico"]).optional(),
           active: z.boolean().optional(),
         })
@@ -247,13 +276,28 @@ export const appRouter = router({
         const { id, ...updateData } = input;
         const result = await db.updateUser(id, updateData);
 
-        // Log audit
         await db.createAuditLog({
           userId: ctx.user.id,
           action: "UPDATE",
           entity: "user",
           entityId: id,
           details: updateData,
+        });
+
+        return result;
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await db.updateUser(input.id, { active: false });
+
+        await db.createAuditLog({
+          userId: ctx.user.id,
+          action: "DELETE",
+          entity: "user",
+          entityId: input.id,
+          details: { id: input.id },
         });
 
         return result;

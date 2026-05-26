@@ -96,3 +96,14 @@ Total de tarefas: 30/60 (50% concluído)
 - [x] Diálogos para criação de registos
 - [x] Notificações (sonner)
 - [x] Rastreabilidade com audit log automático
+
+
+### Administração (Nova Funcionalidade)
+- [x] Página de administração com gestão de utilizadores
+- [x] Listagem de todos os utilizadores do sistema
+- [x] Criação de novos utilizadores
+- [x] Edição de dados de utilizadores
+- [x] Atribuição de papéis (admin, professor, técnico)
+- [x] Ativação/desativação de contas
+- [x] Visualização de estatísticas de utilizadores
+- [x] Filtros e pesquisa de utilizadores

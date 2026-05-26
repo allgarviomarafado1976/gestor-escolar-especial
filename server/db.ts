@@ -282,6 +282,12 @@ export async function getUserById(id: number) {
   return result.length > 0 ? result[0] : null;
 }
 
+export async function createUser(data: typeof users.$inferInsert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return db.insert(users).values(data);
+}
+
 export async function updateUser(id: number, data: Partial<typeof users.$inferInsert>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

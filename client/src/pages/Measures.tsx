@@ -26,15 +26,15 @@ type CreateMeasureInput = z.infer<typeof createMeasureSchema>;
 export default function Measures() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedType, setSelectedType] = useState<string>("");
+  const [selectedType, setSelectedType] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: measures, refetch: refetchMeasures } = trpc.measures.list.useQuery({
-    type: selectedType,
+    type: selectedType && selectedType !== "all" ? selectedType : undefined,
   });
 
-  const { data: students } = trpc.students.list.useQuery({});
+  const { data: students } = trpc.students.list.useQuery({ search: "" });
 
   const createMeasureMutation = trpc.studentMeasures.create.useMutation({
     onSuccess: () => {
@@ -245,7 +245,7 @@ export default function Measures() {
               <SelectValue placeholder="Filtrar por tipo" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todos os tipos</SelectItem>
+              <SelectItem value="all">Todos os tipos</SelectItem>
               {measureTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}

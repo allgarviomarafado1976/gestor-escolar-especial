@@ -168,12 +168,15 @@ export async function getMeasures(type?: string) {
   const db = await getDb();
   if (!db) return [];
 
-  let conditions = [eq(measures.active, true)];
+  let conditions: any[] = [];
 
   if (type) {
     conditions.push(eq(measures.type, type as any));
   }
 
+  if (conditions.length === 0) {
+    return db.select().from(measures);
+  }
   return db.select().from(measures).where(and(...conditions));
 }
 

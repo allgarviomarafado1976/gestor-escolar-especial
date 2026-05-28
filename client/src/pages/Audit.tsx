@@ -11,8 +11,8 @@ import { pt } from "date-fns/locale";
 export default function Audit() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [selectedUser, setSelectedUser] = useState<string>("");
-  const [selectedEntity, setSelectedEntity] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<string>("all");
+  const [selectedEntity, setSelectedEntity] = useState<string>("all");
 
   // Redirect if not admin
   if (isAuthenticated && user?.role !== "admin") {
@@ -102,7 +102,7 @@ export default function Audit() {
               <SelectValue placeholder="Filtrar por utilizador" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todos os utilizadores</SelectItem>
+              <SelectItem value="all">Todos os utilizadores</SelectItem>
               {users?.map((u) => (
                 <SelectItem key={u.id} value={u.id.toString()}>
                   {u.name || u.email}
@@ -116,7 +116,7 @@ export default function Audit() {
               <SelectValue placeholder="Filtrar por entidade" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todas as entidades</SelectItem>
+              <SelectItem value="all">Todas as entidades</SelectItem>
               {entities.map((entity) => (
                 <SelectItem key={entity} value={entity}>
                   {getEntityLabel(entity)}

@@ -26,7 +26,7 @@ export default function Admin() {
   const [, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("all");
   const [editingUser, setEditingUser] = useState<any>(null);
 
   // Redirect if not admin
@@ -284,7 +284,7 @@ export default function Admin() {
               <SelectValue placeholder="Filtrar por papel" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todos os papéis</SelectItem>
+              <SelectItem value="all">Todos os papéis</SelectItem>
               <SelectItem value="admin">Administrador</SelectItem>
               <SelectItem value="professor">Professor</SelectItem>
               <SelectItem value="tecnico">Técnico</SelectItem>

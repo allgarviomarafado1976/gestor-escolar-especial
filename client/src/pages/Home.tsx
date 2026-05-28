@@ -3,10 +3,50 @@ import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { Users, BookOpen, BarChart3, FileText, Settings, LogOut } from "lucide-react";
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { trpc } from "@/lib/trpc";
+import { useMemo } from "react";
+import { skipToken } from "@tanstack/react-query";
 
 export default function Home() {
   const { user, isAuthenticated, logout, loading } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Fetch data for charts
+  const { data: students } = trpc.students.list.useQuery(isAuthenticated ? {} : skipToken);
+  const { data: schools } = trpc.schools.list.useQuery(isAuthenticated ? undefined : skipToken);
+  const { data: measures } = trpc.measures.list.useQuery(isAuthenticated ? {} : skipToken);
+
+  // Process data for charts
+  const studentsBySchool = useMemo(() => {
+    if (!students || !schools) return [];
+    const schoolMap = new Map(schools.map(s => [s.id, s.name]));
+    const counts = new Map<number, number>();
+    students.forEach(s => {
+      if (s.schoolId) {
+        counts.set(s.schoolId, (counts.get(s.schoolId) || 0) + 1);
+      }
+    });
+    return Array.from(counts.entries()).map(([schoolId, count]) => ({
+      name: schoolMap.get(schoolId) || `Escola ${schoolId}`,
+      alunos: count,
+    }));
+  }, [students, schools]);
+
+  const measureTypes = useMemo(() => {
+    if (!measures) return [];
+    const counts = { Universal: 0, Seletiva: 0, Adicional: 0 };
+    measures.forEach(m => {
+      if (m.type === "Universal") counts.Universal++;
+      else if (m.type === "Seletiva") counts.Seletiva++;
+      else if (m.type === "Adicional") counts.Adicional++;
+    });
+    return [
+      { name: "Universais", value: counts.Universal, color: "#3b82f6" },
+      { name: "Seletivas", value: counts.Seletiva, color: "#60a5fa" },
+      { name: "Adicionais", value: counts.Adicional, color: "#93c5fd" },
+    ];
+  }, [measures]);
 
   if (loading) {
     return (
@@ -82,6 +122,58 @@ export default function Home() {
               <LogOut className="w-4 h-4 mr-2" />
               Sair
             </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-white mb-6">Visão Geral</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Students by School Chart */}
+          <div className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 backdrop-blur-sm">
+            <h3 className="text-lg font-bold text-white mb-4">Distribuição de Alunos por Escola</h3>
+            {studentsBySchool.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={studentsBySchool}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="name" stroke="#fff" style={{ fontSize: "12px" }} />
+                  <YAxis stroke="#fff" style={{ fontSize: "12px" }} />
+                  <Tooltip contentStyle={{ backgroundColor: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(255,255,255,0.3)" }} />
+                  <Bar dataKey="alunos" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-blue-200 text-center py-8">Sem dados de alunos</p>
+            )}
+          </div>
+
+          {/* Measures by Type Chart */}
+          <div className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 backdrop-blur-sm">
+            <h3 className="text-lg font-bold text-white mb-4">Distribuição de Medidas por Tipo</h3>
+            {measureTypes.some(m => m.value > 0) ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={measureTypes}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value}`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {measureTypes.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(255,255,255,0.3)" }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-blue-200 text-center py-8">Sem dados de medidas</p>
+            )}
           </div>
         </div>
       </div>

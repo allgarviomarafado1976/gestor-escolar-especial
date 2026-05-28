@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
-import { Plus, ArrowLeft, Download, FileText } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, ArrowLeft, Download, FileText, ChevronLeft, ChevronRight, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
@@ -25,11 +25,15 @@ const createReportSchema = z.object({
 
 type CreateReportInput = z.infer<typeof createReportSchema>;
 
+const ITEMS_PER_PAGE = 6;
+
 export default function Reports() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: reports, refetch: refetchReports } = trpc.reports.list.useQuery({});
   const { data: students } = trpc.students.list.useQuery({ search: "" });
@@ -41,6 +45,7 @@ export default function Reports() {
       refetchReports();
       setIsOpen(false);
       form.reset();
+      setCurrentPage(1);
     },
     onError: (error) => {
       toast.error(error.message || "Erro ao criar relatório");
@@ -87,6 +92,50 @@ export default function Reports() {
   ];
 
   const measureTypes = ["Universal", "Seletiva", "Adicional"];
+
+  // Filter and paginate reports
+  const filteredReports = useMemo(() => {
+    if (!reports) return [];
+    return reports.filter(report =>
+      report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [reports, searchTerm]);
+
+  const totalPages = Math.ceil(filteredReports.length / ITEMS_PER_PAGE);
+  const paginatedReports = filteredReports.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case "student":
+        return "bg-blue-500 text-white";
+      case "school":
+        return "bg-green-500 text-white";
+      case "class":
+        return "bg-purple-500 text-white";
+      case "measure":
+        return "bg-orange-500 text-white";
+      case "period":
+        return "bg-pink-500 text-white";
+      default:
+        return "bg-gray-500 text-white";
+    }
+  };
+
+  const getTypeLabel = (type: string) => {
+    const typeObj = reportTypes.find(t => t.value === type);
+    return typeObj?.label || type;
+  };
+
+  const getReportStatus = (report: any) => {
+    if (report.pdfUrl) {
+      return { icon: CheckCircle, label: "Concluído", color: "text-green-400" };
+    }
+    return { icon: Clock, label: "Pendente", color: "text-yellow-400" };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950">
@@ -144,20 +193,20 @@ export default function Reports() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Tipo de Relatório *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                            <FormControl>
-                              <SelectTrigger className="bg-blue-800 border-white border-opacity-30 text-white">
-                                <SelectValue placeholder="Selecione o tipo" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent className="bg-blue-800 border-white border-opacity-30">
-                              {reportTypes.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                          <FormControl>
+                            <SelectTrigger className="bg-blue-800 border-white border-opacity-30 text-white">
+                              <SelectValue placeholder="Selecione o tipo" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="bg-blue-800 border-white border-opacity-30">
+                            {reportTypes.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -244,7 +293,7 @@ export default function Reports() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Tipo de Medida</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger className="bg-blue-800 border-white border-opacity-30 text-white">
                                 <SelectValue placeholder="Selecione o tipo" />
@@ -300,61 +349,174 @@ export default function Reports() {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="relative">
+          <Input
+            placeholder="Pesquisar relatórios por título ou tipo..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 text-white placeholder-blue-300 backdrop-blur-sm"
+          />
+        </div>
+      </div>
+
       {/* Reports List */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reports && reports.length > 0 ? (
-            reports.map((report) => (
-              <div
-                key={report.id}
-                className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 backdrop-blur-sm hover:bg-opacity-60 transition-all"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <FileText className="w-8 h-8 text-white" />
-                  <span className="text-xs bg-white bg-opacity-20 px-2 py-1 rounded text-white">
-                    {report.type}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">{report.title}</h3>
-                <p className="text-blue-200 text-sm mb-4">
-                  Criado em {new Date(report.createdAt).toLocaleDateString("pt-PT")}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-blue-700 flex-1 justify-center"
-                    disabled
+        {paginatedReports.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {paginatedReports.map((report) => {
+                const status = getReportStatus(report);
+                const StatusIcon = status.icon;
+                return (
+                  <div
+                    key={report.id}
+                    className="bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 backdrop-blur-sm hover:bg-opacity-60 transition-all group"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    PDF
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-blue-700 flex-1 justify-center"
-                  >
-                    Ver
-                  </Button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <FileText className="w-12 h-12 text-blue-300 mx-auto mb-4" />
-              <p className="text-blue-300">Nenhum relatório gerado ainda</p>
-              <p className="text-blue-200 text-sm">Crie um novo relatório para começar</p>
+                    {/* Header with Type Badge and Status */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-6 h-6 text-white" />
+                        <span className={`text-xs font-bold px-2 py-1 rounded ${getTypeColor(report.type)}`}>
+                          {getTypeLabel(report.type)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <StatusIcon className={`w-5 h-5 ${status.color}`} />
+                        <span className={`text-xs font-semibold ${status.color}`}>{status.label}</span>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-blue-100">
+                      {report.title}
+                    </h3>
+
+                    {/* Details */}
+                    <div className="space-y-2 mb-4 text-sm text-blue-200">
+                      <div className="flex justify-between">
+                        <span>Criado:</span>
+                        <span className="text-white font-semibold">
+                          {new Date(report.createdAt).toLocaleDateString("pt-PT")}
+                        </span>
+                      </div>
+                      {report.className && (
+                        <div className="flex justify-between">
+                          <span>Turma:</span>
+                          <span className="text-white font-semibold">{report.className}</span>
+                        </div>
+                      )}
+                      {report.period && (
+                        <div className="flex justify-between">
+                          <span>Período:</span>
+                          <span className="text-white font-semibold">{report.period}</span>
+                        </div>
+                      )}
+                      {report.measureType && (
+                        <div className="flex justify-between">
+                          <span>Medida:</span>
+                          <span className="text-white font-semibold">{report.measureType}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-4 border-t border-white border-opacity-20">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:bg-blue-700 flex-1 justify-center"
+                        disabled={!report.pdfUrl}
+                        title={report.pdfUrl ? "Descarregar PDF" : "PDF não disponível"}
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        PDF
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-white hover:bg-blue-700 flex-1 justify-center"
+                      >
+                        Ver
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          )}
-        </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 py-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="text-white hover:bg-blue-700"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className={
+                        currentPage === page
+                          ? "bg-white text-blue-900 font-bold"
+                          : "text-white hover:bg-blue-700"
+                      }
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                </div>
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="text-white hover:bg-blue-700"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+
+                <span className="text-blue-200 text-sm ml-4">
+                  Página {currentPage} de {totalPages}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <FileText className="w-12 h-12 text-blue-300 mx-auto mb-4" />
+            <p className="text-blue-300">
+              {searchTerm ? "Nenhum relatório encontrado" : "Nenhum relatório gerado ainda"}
+            </p>
+            <p className="text-blue-200 text-sm">
+              {searchTerm ? "Tente outra pesquisa" : "Crie um novo relatório para começar"}
+            </p>
+          </div>
+        )}
 
         {/* Info Box */}
         <div className="mt-8 bg-blue-800 bg-opacity-40 border-2 border-white border-opacity-30 rounded-lg p-6 backdrop-blur-sm">
-          <h3 className="text-white font-bold mb-3">Sobre a Geração de Relatórios</h3>
-          <ul className="text-blue-200 text-sm space-y-2">
-            <li>✓ Relatórios gerados com IA para síntese automática de medidas</li>
-            <li>✓ Formatação adequada para reuniões de EMAEI</li>
-            <li>✓ Conformidade com requisitos legais do DL 54/2018</li>
-            <li>✓ Exportação em PDF para arquivo e partilha</li>
-            <li>✓ Histórico de todos os relatórios gerados</li>
+          <h3 className="text-lg font-bold text-white mb-3">Informações sobre Relatórios</h3>
+          <ul className="space-y-2 text-blue-200 text-sm">
+            <li>• Relatórios por Aluno: Síntese de medidas aplicadas a um aluno específico</li>
+            <li>• Relatórios por Escola: Estatísticas agregadas de uma escola</li>
+            <li>• Relatórios por Turma: Distribuição de medidas numa turma</li>
+            <li>• Relatórios por Medida: Análise de uma medida específica</li>
+            <li>• Relatórios por Período: Resumo de atividades num período letivo</li>
           </ul>
         </div>
       </div>

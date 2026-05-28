@@ -45,7 +45,6 @@ export const schools = mysqlTable("schools", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   abbreviation: varchar("abbreviation", { length: 50 }).notNull(),
-  active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -74,7 +73,6 @@ export const students = mysqlTable("students", {
   classTeacher: varchar("classTeacher", { length: 255 }),
   observations: text("observations"),
   evaluationAccommodations: text("evaluationAccommodations"),
-  active: boolean("active").default(true).notNull(),
   createdBy: int("createdBy").references(() => users.id),
   updatedBy: int("updatedBy").references(() => users.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -92,7 +90,6 @@ export const measures = mysqlTable("measures", {
   name: varchar("name", { length: 255 }).notNull(),
   type: mysqlEnum("type", ["Universal", "Seletiva", "Adicional"]).notNull(),
   description: text("description"),
-  active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

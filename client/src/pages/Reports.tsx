@@ -32,8 +32,8 @@ export default function Reports() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: reports, refetch: refetchReports } = trpc.reports.list.useQuery({});
-  const { data: students } = trpc.students.list.useQuery({});
-  const { data: schools } = trpc.schools.list.useQuery({});
+  const { data: students } = trpc.students.list.useQuery({ search: "" });
+  const { data: schools } = trpc.schools.list.useQuery();
 
   const createReportMutation = trpc.reports.create.useMutation({
     onSuccess: () => {

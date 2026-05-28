@@ -32,14 +32,14 @@ export default function Students() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
-  const [selectedLevel, setSelectedLevel] = useState<string>("");
+  const [selectedSchool, setSelectedSchool] = useState<string>("all");
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: schools } = trpc.schools.list.useQuery();
   const { data: students, refetch } = trpc.students.list.useQuery({
-    schoolId: selectedSchool ? parseInt(selectedSchool) : undefined,
-    educationLevel: selectedLevel,
+    schoolId: selectedSchool && selectedSchool !== "all" ? parseInt(selectedSchool) : undefined,
+    educationLevel: selectedLevel && selectedLevel !== "all" ? selectedLevel : undefined,
     search: searchTerm,
   });
 
@@ -348,7 +348,7 @@ export default function Students() {
               <SelectValue placeholder="Filtrar por escola" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todas as escolas</SelectItem>
+              <SelectItem value="all">Todas as escolas</SelectItem>
               {schools?.map((school) => (
                 <SelectItem key={school.id} value={school.id.toString()}>
                   {school.name}
@@ -362,7 +362,7 @@ export default function Students() {
               <SelectValue placeholder="Filtrar por nível" />
             </SelectTrigger>
             <SelectContent className="bg-blue-800 border-white border-opacity-30">
-              <SelectItem value="">Todos os níveis</SelectItem>
+              <SelectItem value="all">Todos os níveis</SelectItem>
               {educationLevels.map((level) => (
                 <SelectItem key={level} value={level}>
                   {level}

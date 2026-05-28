@@ -106,7 +106,7 @@ export async function getUserByOpenId(openId: string) {
 export async function getSchools() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(schools).where(eq(schools.active, true));
+  return db.select().from(schools);
 }
 
 export async function getSchoolById(id: number) {
@@ -125,7 +125,7 @@ export async function getStudents(filters?: {
   const db = await getDb();
   if (!db) return [];
 
-  let conditions = [eq(students.active, true)];
+  let conditions: any[] = [];
 
   if (filters?.schoolId) {
     conditions.push(eq(students.schoolId, filters.schoolId));
@@ -137,6 +137,9 @@ export async function getStudents(filters?: {
     conditions.push(like(students.fullName, `%${filters.search}%`));
   }
 
+  if (conditions.length === 0) {
+    return db.select().from(students);
+  }
   return db.select().from(students).where(and(...conditions));
 }
 
